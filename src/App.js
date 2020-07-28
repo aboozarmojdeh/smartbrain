@@ -1,95 +1,48 @@
 import React, { Component } from 'react';
+import Clarifai from 'clarifai';
 // import Particles from 'react-particles-js';
 import Particles from "react-tsparticles";
 import Navigation from './components/Navigation/Navigation';
 import Logo from './components/Logo/Logo';
 import Rank from './components/Rank/Rank';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
+import Facerecognition from './components/Facerecognition/Facerecognition';
 import './App.css';
+import {particlesOptions} from './constants/particlesOptions';
 
-const particlesOptions = {
- 
-    
-      background: {
-        color: {
-          value: "",
-        },
-      },
-      fpsLimit: 60,
-      interactivity: {
-        detectsOn: "canvas",
-        events: {
-          onClick: {
-            enable: true,
-            mode: "push",
-          },
-          onHover: {
-            enable: true,
-            mode: "repulse",
-          },
-          resize: true,
-        },
-        modes: {
-          bubble: {
-            distance: 400,
-            duration: 2,
-            opacity: 0.8,
-            size: 40,
-          },
-          push: {
-            quantity: 4,
-          },
-          repulse: {
-            distance: 200,
-            duration: 0.4,
-          },
-        },
-      },
-      particles: {
-        color: {
-          value: "#ffffff",
-        },
-        links: {
-          color: "#ffffff",
-          distance: 150,
-          enable: true,
-          opacity: 0.5,
-          width: 1,
-        },
-        collisions: {
-          enable: true,
-        },
-        move: {
-          direction: "none",
-          enable: true,
-          outMode: "bounce",
-          random: false,
-          speed: 6,
-          straight: false,
-        },
-        number: {
-          density: {
-            enable: true,
-            value_area: 800,
-          },
-          value: 80,
-        },
-        opacity: {
-          value: 0.5,
-        },
-        shape: {
-          type: "circle",
-        },
-        size: {
-          random: true,
-          value: 5,
-        },
-      },
-      detectRetina: true,
-    };
 
+const app = new Clarifai.App({
+  apiKey: 'f8177366b43e4715814679343493853c'
+ });
 
 class App extends Component {
+constructor(){
+  super()
+  this.state={
+    input:'',
+    imageURL:''
+  }
+};
+
+onInputChange=(event)=>{
+console.log(event.target.value)
+this.setState({input:event.target.value})
+
+}
+
+onButtonSubmit=()=>{
+  console.log('submitted')
+  this.setState({imageURL:this.state.input})
+  app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
+  .then(
+    function(response) {
+      console.log(response.outputs[0].data.regions[0].region_info.bounding_box)// do something with response
+    },
+    function(err) {
+      // there was an error
+    }
+  );
+}
   render() {
     return (
       <div className="App">
@@ -100,8 +53,8 @@ class App extends Component {
         <Navigation />
         <Logo />
         <Rank />
-        <ImageLinkForm />
-        {/* <Imagerecognition /> */}
+        <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit}/>
+        <Facerecognition imageURL={this.state.imageURL}/>
       </div>
     )
 
