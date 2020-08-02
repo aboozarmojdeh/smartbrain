@@ -8,6 +8,7 @@ import Rank from "./components/Rank/Rank";
 import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
 import Facerecognition from "./components/Facerecognition/Facerecognition";
 import Signin from "./components/Signin/Signin";
+import Register from "./components/Register/Register";
 import "./App.css";
 import { particlesOptions } from "./constants/particlesOptions";
 
@@ -23,6 +24,7 @@ class App extends Component {
       imageURL: "",
       box: {},
       route: "signin",
+      isSignedIn: false,
     };
   }
 
@@ -42,7 +44,7 @@ class App extends Component {
   };
 
   dispalyFaceBox = (box) => {
-    console.log(box);
+    
     this.setState({ box: box });
   };
 
@@ -63,19 +65,27 @@ class App extends Component {
       );
   };
 
-
-  onRouteChange=(route)=>{
-    this.setState({route:route})
+  onRouteChange = (route) => {
+    if (route === 'signout') {
+      this.setState({isSignedIn: false})
+    } else if (route === 'home') {
+      this.setState({isSignedIn: true})
+    }
+    this.setState({route: route});
   }
+
   render() {
+   const {isSignedIn, imageURL,route,box}=this.state;
     return (
       <div className="App">
         <Particles id="tsparticles" options={particlesOptions} />
-        {this.state.route === "signin" ? (
-          <Signin onRouteChange={this.onRouteChange}/>
-        ) : (
-          <div>
-            <Navigation onRouteChange={this.onRouteChange}/>
+      
+          
+          
+            <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} />
+            {route === "home" ? (
+              <div>
+            
             <Logo />
             <Rank />
             <ImageLinkForm
@@ -83,10 +93,15 @@ class App extends Component {
               onButtonSubmit={this.onButtonSubmit}
             />
             <Facerecognition
-              imageURL={this.state.imageURL}
-              box={this.state.box}
+              imageURL={imageURL}
+              box={box}
             />
           </div>
+        ) : route === "signin" ? (
+          <Signin onRouteChange={this.onRouteChange} />
+          
+        ) : (
+          <Register onRouteChange={this.onRouteChange} />
         )}
       </div>
     );
