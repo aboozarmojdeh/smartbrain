@@ -1,5 +1,6 @@
+
 import React, { Component } from "react";
-import Clarifai from "clarifai";
+
 // import Particles from 'react-particles-js';
 import Particles from "react-tsparticles";
 import Navigation from "./components/Navigation/Navigation";
@@ -12,9 +13,6 @@ import Register from "./components/Register/Register";
 import "./App.css";
 import { particlesOptions } from "./constants/particlesOptions";
 
-const app = new Clarifai.App({
-  apiKey: "f8177366b43e4715814679343493853c",
-});
 
 const initialState={
   input: "",
@@ -79,25 +77,32 @@ class App extends Component {
   };
 
   onButtonSubmit = () => {
-    console.log("submitted");
+    
     this.setState({ imageURL: this.state.input });
-    app.models
-      .predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
-      .then((response) =>{
-        if(response){
-          fetch('http://localhost:3000/image',{
-      method:'put',
+    fetch('http://localhost:3000/imageurl',{
+      method:'post',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        id:this.state.user.id
+        input:this.state.input
       })
     })
+    .then(response=>response.json())
+      .then((response) =>{
+        if(response){
+          fetch('http://localhost:3000/image', {
+            method: 'put',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              id: this.state.user.id
+            })
+          })
     .then(response=>response.json())
     .then(count=>{
       this.setState(Object.assign(this.state.user,{entries:count}))
     })
     .catch(err=>console.log(err))
         }
+        
         this.dispalyFaceBox(this.calculateFaceLocation(response))
       })
       .catch((err) =>
